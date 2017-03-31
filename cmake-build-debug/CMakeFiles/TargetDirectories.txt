@@ -1,0 +1,3 @@
+C:/Users/Avinash M/CLionProjects/CSL 355/CompilerBasicC/cmake-build-debug/CMakeFiles/CompilerBasicC.dir
+C:/Users/Avinash M/CLionProjects/CSL 355/CompilerBasicC/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Avinash M/CLionProjects/CSL 355/CompilerBasicC/cmake-build-debug/CMakeFiles/rebuild_cache.dir

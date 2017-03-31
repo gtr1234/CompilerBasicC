@@ -207,7 +207,7 @@ int main() {
 
     char * token = strtok(buffer,";");
 
-    //root = programTree(token);
+    root = programTree(token);
     printf("something\n");
     //preorder traversal
 

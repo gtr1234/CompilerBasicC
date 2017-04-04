@@ -5,6 +5,7 @@
 
 typedef struct _Node{
     char * value;
+    int num_children;
     struct _Node* children;
 } Node;
 
@@ -42,6 +43,7 @@ Node programTree(char* string){
 
     root.value="P";
     root.children = (Node*)malloc(sizeof(Node)*2);
+    root.num_children=2;
 
     char * token1 = strtok(NULL,";");
     root.children[0] = statementTree(token1);
@@ -58,6 +60,7 @@ Node statementTree(char * string){
 
     root.value="S";
     root.children = (Node*)malloc(sizeof(Node)*1);
+    root.num_children=1;
 
     int len = strlen(string);
     int equal_state=0;
@@ -90,6 +93,7 @@ Node whileTree(char * string){
 
     root.value="W";
     root.children = (Node*)malloc(sizeof(Node)*7);
+    root.num_children=7;
 
     char  expression[100];
     int expression_len=0;
@@ -153,6 +157,7 @@ Node assignmentTree(char * string){
 
     root.value="A";
     root.children = (Node*)malloc(sizeof(Node)*3);
+    root.num_children=3;
 
     char expression[100];
     int expression_len=0;
@@ -195,7 +200,7 @@ Node expressionTree(char * string){   // no space should be there in string
 
     root.value="E";
     root.children = (Node*)malloc(sizeof(Node)*3);
-
+    root.num_children=3;
 
     int brackcount=0;
     int state=0;  // 1 - <,2 - ==
@@ -265,6 +270,7 @@ Node expressionTree(char * string){   // no space should be there in string
 
     else if(state==0){
         root.children[0] = expression1Tree(string);
+        root.num_children=1;
     }
 
     return root;
@@ -276,6 +282,7 @@ Node expression1Tree(char * string){
 
     root.value="E1";
     root.children = (Node*)malloc(sizeof(Node)*3);
+    root.num_children=3;
 
     int state=0;    //1 - +,2 - -
     int indexofoperator=-1;
@@ -332,6 +339,7 @@ Node expression1Tree(char * string){
     }
     else if(state==0){
         root.children[0] = termTree(string);
+        root.num_children=1;
     }
 
     return root;
@@ -343,6 +351,7 @@ Node termTree(char * string){
 
     root.value="T";
     root.children = (Node*)malloc(sizeof(Node)*3);
+    root.num_children=3;
 
     int state=0;    //1 - *,2 - /
     int indexofoperator=-1;
@@ -399,6 +408,7 @@ Node termTree(char * string){
     }
     else if(state==0){
         root.children[0] = factorTree(string);
+        root.num_children=1;
     }
 
     return root;
@@ -410,6 +420,7 @@ Node factorTree(char * string){
 
     root.value = "F";
     root.children = (Node *) malloc(sizeof(Node) * 3);
+    root.num_children=3;
 
     int state=0;
     int state1=0;    // 1-(),2-C,3-V
@@ -464,9 +475,11 @@ Node factorTree(char * string){
     }
     else if(state1==2){
         root.children[0] = constantTree(string);
+        root.num_children=1;
     }
     else if(state1==3){
         root.children[0] = variableTree(string);
+        root.num_children=1;
     }
 
 
@@ -479,6 +492,7 @@ Node constantTree(char * string){
 
     root.value = "C";
     root.children = (Node *) malloc(sizeof(Node) * 1);
+    root.num_children=1;
 
     root.children[0].value = string;
 
@@ -490,10 +504,22 @@ Node variableTree(char * string){
 
     root.value = "V";
     root.children = (Node *) malloc(sizeof(Node) * 1);
+    root.num_children=1;
 
     root.children[0].value = string;
 
     return root;
+}
+
+void preorder(Node* root){
+    if(root == NULL) return;
+
+    printf("%s\n",root->value);
+
+    for(int i=0;i<root->num_children;i++){
+        preorder(&root->children[i]);
+    }
+
 }
 
 int main() {

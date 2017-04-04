@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+#include <ctype.h>
 
 typedef struct _Node{
     char * value;
@@ -19,7 +20,13 @@ Node statementTree(char * string);
 Node whileTree(char * string);
 Node assignmentTree(char * string);
 Node expressionTree(char * string);
+Node expression1Tree(char * string);
+Node termTree(char * string);
+Node factorTree(char * string);
+Node constantTree(char * string);
+Node variableTree(char * string);
 int isValidCharacter(char c);
+
 
 
 int isValidCharacter(char c){   // if anything is missed, add... . No requirement of space character(confirmation required)
@@ -183,14 +190,311 @@ Node assignmentTree(char * string){
     return root;
 }
 
-Node expressionTree(char * string){
+Node expressionTree(char * string){   // no space should be there in string
     Node root;
+
+    root.value="E";
+    root.children = (Node*)malloc(sizeof(Node)*3);
+
+
+    int brackcount=0;
+    int state=0;  // 1 - <,2 - ==
+    int indexofoperator=-1;
+
+    int prev_equal=0;
+
+    for(int i=0;i<strlen(string);i++){
+        if(string[i]=='(') {
+            brackcount++;
+            prev_equal=0;
+        }
+        else if(string[i]==')'){
+            brackcount--;
+            prev_equal=0;
+        }
+        else if(brackcount==0){
+            if(string[i]=='<'){
+                state=1;
+                indexofoperator=i;
+                break;
+            }
+            else if(string[i]=='='){
+                if(prev_equal==0){
+                    prev_equal=1;
+                }
+                else if(prev_equal==1){
+                    state=2;
+                    indexofoperator=i;
+                    break;
+                }
+            }
+        }
+    }
+
+
+
+    char str1[100];    // careful on lengths (no of characters+1 -- due to /0)
+    char str2[100];
+
+    if(state==1){
+        for(int i=0;i<indexofoperator;i++){
+            str1[i] = string[i];
+        }
+        for(int i=indexofoperator+1;i<strlen(string);i++){
+            str2[i] = string[i];
+        }
+
+        root.children[0] = expression1Tree(str1);
+        root.children[1].value = "<";
+        root.children[2] = expressionTree(str2);
+
+    }
+    else if(state==2){
+        for(int i=0;i<indexofoperator-1;i++){
+            str1[i]=string[i];
+        }
+        for(int i=indexofoperator+1;i<strlen(string);i++){
+            str2[i]=string[i];
+        }
+
+        root.children[0] = expression1Tree(str1);
+        root.children[1].value = "==";
+        root.children[2] = expressionTree(str2);
+
+    }
+
+    else if(state==0){
+        root.children[0] = expression1Tree(string);
+    }
+
+    return root;
+}
+
+
+Node expression1Tree(char * string){
+    Node root;
+
+    root.value="E1";
+    root.children = (Node*)malloc(sizeof(Node)*3);
+
+    int state=0;    //1 - +,2 - -
+    int indexofoperator=-1;
+    int brackcount=0;
+
+    for(int i=0;i<strlen(string);i++){
+        if(string[i]=='(') {
+            brackcount++;
+        }
+        else if(string[i]==')'){
+            brackcount--;
+        }
+        else if(brackcount==0){
+            if(string[i]=='+'){
+                state=1;
+                indexofoperator=i;
+                break;
+            }
+            else if(string[i]=='-'){
+                state=2;
+                indexofoperator=i;
+                break;
+            }
+        }
+
+    }
+
+    char str1[100];
+    char str2[100];
+
+    if(state==1){
+        for(int i=0;i<indexofoperator;i++){
+            str1[i]=string[i];
+        }
+        for(int i=indexofoperator+1;i<strlen(string);i++){
+            str2[i]=string[i];
+        }
+
+        root.children[0] = termTree(str1);
+        root.children[1].value = "+";
+        root.children[2] = expression1Tree(str2);
+    }
+    else if(state==2){
+        for(int i=0;i<indexofoperator;i++){
+            str1[i]=string[i];
+        }
+        for(int i=indexofoperator+1;i<strlen(string);i++){
+            str2[i]=string[i];
+        }
+
+        root.children[0] = termTree(str1);
+        root.children[1].value = "-";
+        root.children[2] = expression1Tree(str2);
+    }
+    else if(state==0){
+        root.children[0] = termTree(string);
+    }
+
+    return root;
+}
+
+
+Node termTree(char * string){
+    Node root;
+
+    root.value="T";
+    root.children = (Node*)malloc(sizeof(Node)*3);
+
+    int state=0;    //1 - *,2 - /
+    int indexofoperator=-1;
+    int brackcount=0;
+
+    for(int i=0;i<strlen(string);i++){
+        if(string[i]=='(') {
+            brackcount++;
+        }
+        else if(string[i]==')'){
+            brackcount--;
+        }
+        else if(brackcount==0){
+            if(string[i]=='*'){
+                state=1;
+                indexofoperator=i;
+                break;
+            }
+            else if(string[i]=='/'){
+                state=2;
+                indexofoperator=i;
+                break;
+            }
+        }
+
+    }
+
+    char str1[100];
+    char str2[100];
+
+    if(state==1){
+        for(int i=0;i<indexofoperator;i++){
+            str1[i]=string[i];
+        }
+        for(int i=indexofoperator+1;i<strlen(string);i++){
+            str2[i]=string[i];
+        }
+
+        root.children[0] = factorTree(str1);
+        root.children[1].value = "*";
+        root.children[2] = termTree(str2);
+    }
+    else if(state==2){
+        for(int i=0;i<indexofoperator;i++){
+            str1[i]=string[i];
+        }
+        for(int i=indexofoperator+1;i<strlen(string);i++){
+            str2[i]=string[i];
+        }
+
+        root.children[0] = factorTree(str1);
+        root.children[1].value = "/";
+        root.children[2] = termTree(str2);
+    }
+    else if(state==0){
+        root.children[0] = factorTree(string);
+    }
+
+    return root;
+}
+
+
+Node factorTree(char * string){
+    Node root;
+
+    root.value = "F";
+    root.children = (Node *) malloc(sizeof(Node) * 3);
+
+    int state=0;
+    int state1=0;    // 1-(),2-C,3-V
+    int brackcount=0;
+
+    int str1[100];
+
+    for(int i=0;i<strlen(string);i++){
+        if(string[i]=='('){
+            state=1;
+            state1=1;
+            brackcount++;
+        }
+        else if(state==1 && brackcount>1){
+            str1[i]=string[i];
+        }
+        else if(state==1 && brackcount==1 && string[i]!=')'){
+            str1[i]=string[i];
+        }
+        else if(state==1 && brackcount==1 && string[i]==')'){
+            state=0;
+        }
+    }
+
+    if(state1==0){
+        int err_state1=0;
+        for(int i=0;i<strlen(string);i++){
+            if(!isalpha(string[i])){
+                err_state1=1;
+                break;
+            }
+        }
+        if(err_state1==0) state1=3;
+    }
+
+    if(state1==0){
+        int err_state1=0;
+        for(int i=0;i<strlen(string);i++){
+            if(!isdigit(string[i]) && string[i]!='.'){
+                err_state1=1;
+                break;
+            }
+        }
+        if(err_state1==0) state1=2;
+    }
+
+
+    if(state1==1){
+        root.children[0].value="(";
+        root.children[1]=expressionTree(str1);
+        root.children[2].value=")";
+    }
+    else if(state1==2){
+        root.children[0] = constantTree(string);
+    }
+    else if(state1==3){
+        root.children[0] = variableTree(string);
+    }
 
 
     return root;
 }
 
 
+Node constantTree(char * string){
+    Node root;
+
+    root.value = "C";
+    root.children = (Node *) malloc(sizeof(Node) * 1);
+
+    root.children[0].value = string;
+
+    return root;
+}
+
+Node variableTree(char * string){
+    Node root;
+
+    root.value = "V";
+    root.children = (Node *) malloc(sizeof(Node) * 1);
+
+    root.children[0].value = string;
+
+    return root;
+}
 
 int main() {
 
@@ -213,7 +517,7 @@ int main() {
 
     // this is a test - Its a trap
     // conflict checking
-    //final try once more 5
+
     return 0;
 }
 

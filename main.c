@@ -29,7 +29,7 @@ Node factorTree(char * string);
 Node constantTree(char * string);
 Node variableTree(char * string);
 int isValidCharacter(char c);
-void preorder(Node *root);
+void preorder(Node *root,FILE * f);
 
 
 
@@ -42,7 +42,6 @@ int isValidCharacter(char c){   // if anything is missed, add... . No requiremen
 Node programTree(char* string){
     Node root;
 
-    printf("came to programTree\n");
     
     if(string==NULL || strlen(string)==0){ 
         root.null_value=1;
@@ -51,8 +50,6 @@ Node programTree(char* string){
 
     root.null_value=0;
 
-    
-    printf("P str - %s -- %d\n",string,strlen(string));
 
 
     int length_max = strlen(string);
@@ -113,7 +110,6 @@ Node programTree(char* string){
             }
             token2[len_token2]=0;
 
-            //printf("%s ____ %s\n",token1,token2);
         }
         else{
             token2=NULL;
@@ -126,7 +122,13 @@ Node programTree(char* string){
 
     
     root.children[0] = statementTree(token1);
-    root.children[1] = programTree(token2);
+    Node temp = programTree(token2);
+    if(temp.null_value == 1){
+        root.num_children=1;
+    }
+    else{
+        root.children[1] = temp;
+    }
 
     return root;
 }
@@ -690,10 +692,6 @@ Node constantTree(char * string){
 
     strcpy(root.children[0].value,string);
 
-    printf("came to constantTree\n");
-
-    //printf("str - %s\n",string);
-
     return root;
 }
 
@@ -710,25 +708,35 @@ Node variableTree(char * string){
 
     strcpy(root.children[0].value,string);
 
-    printf("came to variableTree\n");
-
     return root;
 }
 
-void preorder(Node * root){
-    if(root == NULL || root->null_value==1) return;
+void preorder(Node * root,FILE * f){
+    if(root == NULL || root->null_value==1){ 
+        return;
+    }
 
     if(root->value!=NULL) {
-        printf("%s ", root->value);
+        fprintf(f,"%s", root->value);
     }
+    
     int i;
+    int state=0;
     for(i=0;i<root->num_children;i++){
-        preorder(&root->children[i]);
+        if(&root->children[i] !=NULL){
+            fprintf(f,"@");
+            state=1;
+        }
     }
+    
+    for(i=0;i<root->num_children;i++){
+        preorder(&root->children[i],f);
+    }
+    fprintf(f,"#");
 }
 
 int main() {
-    FILE *file = fopen("test.txt", "rb");
+    FILE *file = fopen("input.c", "rb");
 
     fseek (file, 0, SEEK_END);
     long length = ftell (file);
@@ -740,13 +748,10 @@ int main() {
     buffer[length]=0;
 
     Node root;
-    printf("%ld\n",length);
     char * buffer_new = (char *) malloc(length);
 
     int buffer_new_len=0;
 
-
-    printf("buff-%d-%s\n",strlen(buffer),buffer);
 
     int i;
     for(i=0;i<strlen(buffer);i++){  // check again to add required characters
@@ -758,8 +763,6 @@ int main() {
     buffer_new[buffer_new_len]=0;
 
 
-
-    printf("buff_new-%d-%s\n",strlen(buffer_new),buffer_new);
 
     root = programTree(buffer_new);
 
@@ -779,9 +782,13 @@ int main() {
     */
 
     //preorder traversal
-    printf("error in preorder\n");
-    preorder(&root);
-    printf("\n");
+
+    FILE *fout = fopen("output.txt", "w");
+
+    preorder(&root,fout);
+    fprintf(fout,"\n");
+
+    fclose(fout);
 
     return 0;
 }

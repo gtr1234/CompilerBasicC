@@ -1,0 +1,32 @@
+Group Members: 1)A.V.S Karthik(2014CSB1005)
+	       2)M.Akhil Avinash(2014CSB1019)
+	       3) Eswar Dev Harsha(2014CSB1023)
+	       4)Nikhil Kumar Pulipeta(2014CSB1025)
+	       5) Shiva Sutapalli(2014CSB1037)	
+
+To compile: gcc pa2.c
+To run: ./a.out [input filename]
+
+Note: The symbol for opening bracket is @ and for closing bracket is #. P stands for Program. S stands for statement. A stands for assignment. W stands for while loop. V stands for Variable. E for Expression. C for Constant. E1 for type1 expression(described in grammar). T for Term. F for Factor. 
+
+
+Grammar:
+
+P -> S;P|S
+S -> A|W
+A -> V = E
+W -> while(E){S};
+E -> E1 < E 
+    |E1 == E 
+    |E1
+E1-> T + E1
+    |T - E1
+    |T
+T -> F*T
+    |F/T
+    |F
+F -> ( E ) | C | V
+V -> {a-z}+
+C -> {0-9}+.{0-9}k
+
+ 

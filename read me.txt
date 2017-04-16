@@ -9,7 +9,6 @@ To run: ./a.out [input filename]
 
 Note: The symbol for opening bracket is @ and for closing bracket is #. P stands for Program. S stands for statement. A stands for assignment. W stands for while loop. V stands for Variable. E for Expression. C for Constant. E1 for type1 expression(described in grammar). T for Term. F for Factor. 
 
-
 Grammar:
 
 P -> S;P|S

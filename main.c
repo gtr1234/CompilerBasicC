@@ -20,6 +20,8 @@ int num_statements=0;
 
 Node programTree(char* string);
 Node statementTree(char * string);
+Node readTree(char * string);
+Node printTree(char * string);
 Node whileTree(char * string);
 Node assignmentTree(char * string);
 Node expressionTree(char * string);
@@ -42,8 +44,8 @@ int isValidCharacter(char c){   // if anything is missed, add... . No requiremen
 Node programTree(char* string){
     Node root;
 
-    
-    if(string==NULL || strlen(string)==0){ 
+
+    if(string==NULL || strlen(string)==0){
         root.null_value=1;
         return root;
     }
@@ -103,7 +105,7 @@ Node programTree(char* string){
             }
         }
         token1[len_token1]=0;
-        if(len_token1 != length_max-1){ 
+        if(len_token1 != length_max-1){
             int i;
             for(i=len_token1+1;i<length_max;i++){
                 token2[len_token2++] = string[i];
@@ -113,14 +115,14 @@ Node programTree(char* string){
         }
         else{
             token2=NULL;
-        } 
+        }
     }
     else if(while_state==0){
         token1 = strtok(string,";");
         token2 = strtok(NULL,"");
     }
 
-    
+
     root.children[0] = statementTree(token1);
     Node temp = programTree(token2);
     if(temp.null_value == 1){
@@ -145,21 +147,107 @@ Node statementTree(char * string){
 
 
     int len = strlen(string);
-    int while_state=0;
+    int while_state=0;  // 1 - while, 2- read, 3- print , 4- assignment
 
     if(strstr(string,"while")){  // while loop
         while_state=1;
     }
-    
-    if(while_state==1){
+    else if(strstr(string,"read")){
+        while_state=2;
+    }
+    else if(strstr(string,"print")){
+        while_state=3;
+    }
+
+    if(while_state==1){   // while
         root.children[0] = whileTree(string);
     }
-    else if(while_state==0){  // if not while then assignment
+    else if(while_state==0){   // assignment
         root.children[0] = assignmentTree(string);
+    }
+    else if(while_state==2){   // read
+        root.children[0] = readTree(string);
+    }
+    else if(while_state==3){    // print
+        root.children[0] = printTree(string);
     }
 
     return root;
 }
+
+
+Node readTree(char * string) {
+    Node root;
+
+    root.null_value = 0;
+    root.value = "R";
+    root.children = (Node *) malloc(sizeof(Node) * 2);
+    int i;
+    for (i = 0; i < 2; i++) {
+        root.children[i].num_children = 0;
+    }
+
+    int length_max = strlen(string);
+
+    root.num_children=2;
+
+    char  variable[length_max];
+    int variable_len=0;
+
+    int state=0;
+    for(i=0;i<strlen(string);i++){
+        if(state==0 && string[i]=='d'){
+            state=1;
+            i++;  // this is for ignoring the next space...
+        }
+        else if(state==1){
+            variable[variable_len++] = string[i];
+        }
+    }
+    variable[variable_len]=0;
+
+    root.children[0].value = "read";
+    root.children[1] = variableTree(variable);
+
+    return root;
+}
+
+Node printTree(char * string) {
+    Node root;
+
+    root.null_value = 0;
+    root.value = "Pr";
+    root.children = (Node *) malloc(sizeof(Node) * 2);
+    int i;
+    for (i = 0; i < 2; i++) {
+        root.children[i].num_children = 0;
+    }
+
+    int length_max = strlen(string);
+
+    root.num_children=2;
+
+    char  expression[length_max];
+    int expression_len=0;
+
+    int state=0;
+    for(i=0;i<strlen(string);i++){
+        if(state==0 && string[i]=='t'){
+            state=1;
+            i++;  // this is for ignoring the next space...
+        }
+        else if(state==1){
+            expression[expression_len++] = string[i];
+        }
+    }
+    expression[expression_len]=0;
+
+    root.children[0].value = "print";
+    root.children[1] = expressionTree(expression);
+
+    return root;
+}
+
 
 Node whileTree(char * string){
     Node root;
@@ -199,10 +287,10 @@ Node whileTree(char * string){
             }
             else if (state == 1 && brackcount > 1) {
                 expression[expression_len++] = string[i];
-            } 
+            }
             else if (state == 1 && brackcount == 1 && string[i] != ')') {
                 expression[expression_len++] = string[i];
-            } 
+            }
             else if (state == 1 && string[i] == ')' && brackcount == 1) {
                 state = 0;
                 break;
@@ -607,7 +695,7 @@ Node factorTree(char * string){
     int brackcount=0;
 
     int length_max = strlen(string);
-    
+
     char * str1;
     int str1_len=0;
     str1 = (char *) malloc(sizeof(char)*length_max);
@@ -712,14 +800,14 @@ Node variableTree(char * string){
 }
 
 void preorder(Node * root,FILE * f){
-    if(root == NULL || root->null_value==1){ 
+    if(root == NULL || root->null_value==1){
         return;
     }
 
     if(root->value!=NULL) {
         fprintf(f,"%s", root->value);
     }
-    
+
     int i;
     int state=0;
     for(i=0;i<root->num_children;i++){
@@ -728,7 +816,7 @@ void preorder(Node * root,FILE * f){
             state=1;
         }
     }
-    
+
     for(i=0;i<root->num_children;i++){
         preorder(&root->children[i],f);
     }
@@ -769,11 +857,9 @@ int main() {
     /*printf("root - %s\n",root.value);
     printf("root.c0 - %s\n",root.children[0].value);
     printf("root.c1 - %s\n",root.children[1].value);
-
     /*printf("root.c.c.c0 - %s\n",root.children[0].children[0].children[0].value);
     printf("root.c.c.c1 - %s\n",root.children[0].children[0].children[1].value);
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].value);
-
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].value);
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].children[0].value);
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].children[0].children[0].value);
@@ -792,6 +878,3 @@ int main() {
 
     return 0;
 }
-
-
-

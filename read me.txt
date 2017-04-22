@@ -12,7 +12,9 @@ Note: The symbol for opening bracket is @ and for closing bracket is #. P stands
 Grammar:
 
 P -> S;P|S
-S -> A|W
+S -> A|W|R|Pr
+R -> read V
+Pr -> print E
 A -> V = E
 W -> while(E){S};
 E -> E1 < E 

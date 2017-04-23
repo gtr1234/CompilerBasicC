@@ -1,6 +1,6 @@
 Group Members: 1)A.V.S Karthik(2014CSB1005)
 	       2)M.Akhil Avinash(2014CSB1019)
-	       3) Eswar Dev Harsha(2014CSB1023)
+	       3)Eswar Dev Harsha(2014CSB1023)
 	       4)Nikhil Kumar Pulipeta(2014CSB1025)
 	       5) Shiva Sutapalli(2014CSB1037)	
 
@@ -12,7 +12,9 @@ Note: The symbol for opening bracket is @ and for closing bracket is #. P stands
 Grammar:
 
 P -> S;P|S
-S -> A|W
+S -> A|W|R|Pr
+R -> read V
+Pr -> print E
 A -> V = E
 W -> while(E){S};
 E -> E1 < E 

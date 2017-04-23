@@ -2,12 +2,14 @@
 #include <string.h>
 #include <malloc.h>
 #include <ctype.h>
-
+#define MAX_SIZE 100
 typedef struct _Node{
     char * value;
     int num_children;
     struct _Node* children;
     int null_value;
+    int left;
+    int right;
 } Node;
 
 
@@ -32,7 +34,8 @@ Node constantTree(char * string);
 Node variableTree(char * string);
 int isValidCharacter(char c);
 void preorder(Node *root,FILE * f);
-
+void postorder(Node* root);
+//void postorder(Node *root,FILE * f);
 
 
 int isValidCharacter(char c){   // if anything is missed, add... . No requirement of space character(confirmation required)
@@ -127,11 +130,15 @@ Node programTree(char* string){
     Node temp = programTree(token2);
     if(temp.null_value == 1){
         root.num_children=1;
+        root.left = 0;
+    	root.right = -1;
     }
     else{
         root.children[1] = temp;
+        root.left = 0;
+        root.right = 1;
     }
-
+    
     return root;
 }
 
@@ -172,6 +179,9 @@ Node statementTree(char * string){
         root.children[0] = printTree(string);
     }
 
+    root.left = 0;
+    root.right = -1;
+    
     return root;
 }
 
@@ -209,6 +219,8 @@ Node readTree(char * string) {
     root.children[0].value = "read";
     root.children[1] = variableTree(variable);
 
+    root.left = 0;
+    root.right = 1;
     return root;
 }
 
@@ -244,6 +256,9 @@ Node printTree(char * string) {
 
     root.children[0].value = "print";
     root.children[1] = expressionTree(expression);
+    
+    root.left = 0;
+    root.right = 1;
 
     return root;
 }
@@ -337,7 +352,8 @@ Node whileTree(char * string){
 
     root.children[6].value = "}";
 
-
+    root.left = 1;
+    root.right = 4;
 
     return root;
 }
@@ -394,7 +410,8 @@ Node assignmentTree(char * string){
     root.children[1].value = "=";
     root.children[2] = expressionTree(expression);
 
-
+    root.left = 0;
+    root.right = 2;
     return root;
 }
 
@@ -471,7 +488,9 @@ Node expressionTree(char * string){   // no space should be there in string
         root.children[0] = expression1Tree(str1);
         root.children[1].value = "<";
         root.children[2] = expressionTree(str2);
-
+        
+        root.left = 0;
+        root.right = 2;
     }
     else if(state==2){
         for(i=0;i<indexofoperator-1;i++){
@@ -487,14 +506,21 @@ Node expressionTree(char * string){   // no space should be there in string
         root.children[0] = expression1Tree(str1);
         root.children[1].value = "==";
         root.children[2] = expressionTree(str2);
+        
+        root.left = 0;
+        root.right = 2;
 
     }
 
     else if(state==0){
         root.children[0] = expression1Tree(string);
         root.num_children=1;
+        
+        root.left = 0;
+        root.right = -1;
     }
 
+    
     return root;
 }
 
@@ -563,6 +589,9 @@ Node expression1Tree(char * string){
         root.children[0] = termTree(str1);
         root.children[1].value = "+";
         root.children[2] = expression1Tree(str2);
+        
+        root.left = 0;
+        root.right = 2;
     }
     else if(state==2){
         for(i=0;i<indexofoperator;i++){
@@ -578,12 +607,16 @@ Node expression1Tree(char * string){
         root.children[0] = termTree(str1);
         root.children[1].value = "-";
         root.children[2] = expression1Tree(str2);
+        root.left = 0;
+        root.right = 2;
     }
     else if(state==0){
         root.children[0] = termTree(string);
         root.num_children=1;
+        root.left = 0;
+        root.right = -1;
     }
-
+    
     return root;
 }
 
@@ -652,6 +685,8 @@ Node termTree(char * string){
         root.children[0] = factorTree(str1);
         root.children[1].value = "*";
         root.children[2] = termTree(str2);
+        root.left = 0;
+        root.right = 2;
     }
     else if(state==2){
         for(i=0;i<indexofoperator;i++){
@@ -667,10 +702,14 @@ Node termTree(char * string){
         root.children[0] = factorTree(str1);
         root.children[1].value = "/";
         root.children[2] = termTree(str2);
+        root.left = 0;
+        root.right = 2;
     }
     else if(state==0){
         root.children[0] = factorTree(string);
         root.num_children=1;
+        root.left = 0;
+        root.right = -1;
     }
 
     return root;
@@ -752,14 +791,23 @@ Node factorTree(char * string){
         root.children[0].value="(";
         root.children[1]=expressionTree(str1);
         root.children[2].value=")";
+        
+        root.left = 1;
+        root.right = -1;
     }
     else if(state1==2){
         root.children[0] = constantTree(string);
         root.num_children=1;
+        
+        root.left = 0;
+        root.right = -1;
     }
     else if(state1==3){
         root.children[0] = variableTree(string);
         root.num_children=1;
+        
+        root.left = 0;
+        root.right = -1;
     }
 
 
@@ -780,6 +828,8 @@ Node constantTree(char * string){
 
     strcpy(root.children[0].value,string);
 
+    root.left = 0;
+    root.right = -1;
     return root;
 }
 
@@ -796,6 +846,8 @@ Node variableTree(char * string){
 
     strcpy(root.children[0].value,string);
 
+    root.left = 0;
+    root.right = -1;
     return root;
 }
 
@@ -823,53 +875,10 @@ void preorder(Node * root,FILE * f){
     fprintf(f,"#");
 }
 
-float strToFloat(char *c){
-    char *it = c;
-    int size1 = 0,size2 = 0;
-    while(isalnum(*it)){
-        it++;
-        size1++;
-    }
-
-    it++;
-
-    while(isalnum(*it)){
-        it++;
-        size2++;
-    }
-
-    int n = size1 + size2 + 1;
-    int i;
-    float ans = 0.0;
-    int mult = 1;
-
-    for(i = n-1;i>=0;i--){
-        if(c[i] == '.')
-            continue;
-        else{
-            ans += mult*(c[i] - '0');
-            mult *= 10;
-        }
-    }
-
-    int div = 1;
-    for(i = 0; i < size2; i++)
-        div *= 10;
-
-    ans /= div;
 
 
-    return ans;
-
-}
-
-int main(int argc,char **argv) {
-    if(argc != 2) {
-        printf("Please enter the input file name as argument.\n");
-        exit(0);
-    }
-    char *inputFilename = argv[1];
-    FILE *file = fopen(inputFilename, "rb");
+int main() {
+    FILE *file = fopen("input.c", "rb");
 
     fseek (file, 0, SEEK_END);
     long length = ftell (file);
@@ -918,10 +927,103 @@ int main(int argc,char **argv) {
 
     preorder(&root,fout);
     fprintf(fout,"\n");
-
+    postorder(&root);
     fclose(fout);
 
-    char *c = "123.59";
-    printf("%f\n",strToFloat(c));
     return 0;
 }
+
+
+
+// Stack type
+struct Stack
+{
+    int size;
+    int top;
+    //struct _Node* children;
+    struct _Node* *array;
+};
+
+struct Stack* createStack(int size)
+{
+    struct Stack* stack = (struct Stack*) malloc(sizeof(struct Stack));
+    stack->size = size;
+    stack->top = -1;
+    stack->array = (struct _Node**) malloc(stack->size * sizeof(struct _Node*));
+    return stack;
+}
+ 
+// BASIC OPERATIONS OF STACK
+int isFull(struct Stack* stack)
+{  return stack->top - 1 == stack->size; }
+ 
+int isEmpty(struct Stack* stack)
+{  return stack->top == -1; }
+ 
+void push(struct Stack* stack, struct _Node* node)
+{
+    if (isFull(stack))
+        return;
+    stack->array[++stack->top] = node;
+}
+ 
+struct _Node* pop(struct Stack* stack)
+{
+    if (isEmpty(stack))
+        return NULL;
+    return stack->array[stack->top--];
+}
+ 
+struct _Node* peek(struct Stack* stack)
+{
+    if (isEmpty(stack))
+        return NULL;
+    return stack->array[stack->top];
+}
+
+// An iterative function to do postorder traversal of a given binary tree
+void postorder(Node* root)
+{
+    // Check for empty tree
+    if (root == NULL)
+        return;
+    printf("%s\n", root->value);
+    printf("%d\n", root->left);
+        
+    struct Stack* stack = createStack(MAX_SIZE);
+
+    do
+    {
+       
+        while (root)
+        {
+           
+            if (root->right!=-1 && &root->children[root->right]!=NULL)
+                push(stack, &root->children[root->right]);
+            push(stack, root);
+ 
+            
+            root = &root->children[root->left];
+            
+             	
+        }
+
+       
+        root = pop(stack);
+ 
+       
+        if (&root->children[root->right] && peek(stack) == &root->children[root->right])
+        {
+            pop(stack);  
+            push(stack, root);  
+            root = &root->children[root->right]; 
+                                
+        }
+        else  
+        {
+		printf("Node - > %s \n", root->value);
+            root = NULL;
+        }
+    } while (!isEmpty(stack));
+}
+

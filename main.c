@@ -864,7 +864,7 @@ float strToFloat(char *c){
 }
 
 int main(int argc,char **argv) {
-    /*if(argc != 2) {
+    if(argc != 2) {
         printf("Please enter the input file name as argument.\n");
         exit(0);
     }
@@ -910,7 +910,7 @@ int main(int argc,char **argv) {
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].children[0].children[0].value);
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].children[0].children[0].children[0].value);
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].children[0].children[0].children[0].children[0].value);
-
+    */
 
     //preorder traversal
 
@@ -919,7 +919,7 @@ int main(int argc,char **argv) {
     preorder(&root,fout);
     fprintf(fout,"\n");
 
-    fclose(fout);*/
+    fclose(fout);
 
     char *c = "123.59";
     printf("%f\n",strToFloat(c));

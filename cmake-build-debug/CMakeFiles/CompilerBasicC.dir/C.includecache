@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Avinash M/CLionProjects/CSL 355/CompilerBasicC/main.c
+stdio.h
+-
+string.h
+-
+malloc.h
+-
+ctype.h
+-
+

@@ -1,3 +1,3 @@
-"C:\Program Files (x86)\JetBrains\CLion 2016.3.3\bin\cmake\bin\cmake.exe" -E remove -f CMakeFiles\CompilerBasicC.dir/objects.a
+"C:\Program Files (x86)\JetBrains\CLion 2017.1\bin\cmake\bin\cmake.exe" -E remove -f CMakeFiles\CompilerBasicC.dir/objects.a
 C:\MinGW\bin\ar.exe cr CMakeFiles\CompilerBasicC.dir/objects.a @CMakeFiles\CompilerBasicC.dir\objects1.rsp
 C:\MinGW\bin\gcc.exe  -g   -Wl,--whole-archive CMakeFiles\CompilerBasicC.dir/objects.a -Wl,--no-whole-archive  -o CompilerBasicC.exe -Wl,--out-implib,libCompilerBasicC.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\CompilerBasicC.dir\linklibs.rsp

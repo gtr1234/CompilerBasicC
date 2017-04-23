@@ -735,8 +735,53 @@ void preorder(Node * root,FILE * f){
     fprintf(f,"#");
 }
 
-int main() {
-    FILE *file = fopen("input.c", "rb");
+float strToFloat(char *c){
+    char *it = c;
+    int size1 = 0,size2 = 0;
+    while(isalnum(*it)){
+        it++;
+        size1++;
+    }
+
+    it++;
+
+    while(isalnum(*it)){
+        it++;
+        size2++;
+    }
+
+    int n = size1 + size2 + 1;
+    int i;
+    float ans = 0.0;
+    int mult = 1;
+
+    for(i = n-1;i>=0;i--){
+        if(c[i] == '.')
+            continue;
+        else{
+            ans += mult*(c[i] - '0');
+            mult *= 10;
+        }
+    }
+
+    int div = 1;
+    for(i = 0; i < size2; i++)
+        div *= 10;
+
+    ans /= div;
+
+
+    return ans;
+
+}
+
+int main(int argc,char **argv) {
+    /*if(argc != 2) {
+        printf("Please enter the input file name as argument.\n");
+        exit(0);
+    }
+    char *inputFilename = argv[1];
+    FILE *file = fopen(inputFilename, "rb");
 
     fseek (file, 0, SEEK_END);
     long length = ftell (file);
@@ -779,7 +824,7 @@ int main() {
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].children[0].children[0].value);
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].children[0].children[0].children[0].value);
     printf("root.c.c.c2 - %s\n",root.children[0].children[0].children[2].children[0].children[0].children[0].children[0].children[0].value);
-    */
+
 
     //preorder traversal
 
@@ -788,8 +833,10 @@ int main() {
     preorder(&root,fout);
     fprintf(fout,"\n");
 
-    fclose(fout);
+    fclose(fout);*/
 
+    char *c = "123.59";
+    printf("%f\n",strToFloat(c));
     return 0;
 }
 

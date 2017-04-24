@@ -23,7 +23,7 @@ Output:
 
 Approach: 
 
-                We evaluated the input program using the Postorder traversal of the tree contructed where the postorder tranversal is 			implemented using a stack. 
+                We evaluated the input program using the Postorder traversal of the tree contructed where the postorder tranversal 			is implemented using a stack. 
 
 NOTE :  
 	   

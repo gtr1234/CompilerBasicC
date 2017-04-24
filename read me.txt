@@ -16,7 +16,7 @@ S -> A|W|R|Pr
 R -> read V
 Pr -> print E
 A -> V = E
-W -> while(E){S};
+W -> while(E){P};
 E -> E1 < E 
     |E1 == E 
     |E1

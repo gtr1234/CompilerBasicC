@@ -1,13 +1,37 @@
 Group Members: 1)A.V.S Karthik(2014CSB1005)
-	       2)M.Akhil Avinash(2014CSB1019)
-	       3)Eswar Dev Harsha(2014CSB1023)
-	       4)Nikhil Kumar Pulipeta(2014CSB1025)
-	       5) Shiva Sutapalli(2014CSB1037)	
+	       	   2)M.Akhil Avinash(2014CSB1019)
+	       	   3)Eswar Dev Harsha(2014CSB1023)
+	           4)Nikhil Kumar Pulipeta(2014CSB1025)
+	           5)Shiva Sutapalli(2014CSB1037)	
 
-To compile: gcc pa2.c
+To compile: gcc pa3.c
 To run: ./a.out [input filename]
 
-Note: The symbol for opening bracket is @ and for closing bracket is #. P stands for Program. S stands for statement. A stands for assignment. W stands for while loop. V stands for Variable. E for Expression. C for Constant. E1 for type1 expression(described in grammar). T for Term. F for Factor. 
+Output: The Pre-order traversal of the tree constructed will be written to output.txt file 
+		The Evaluated values/results from the input program file will be shown in command prompt.
+
+
+The Grammar for while is updated now, it can have multiple statements.
+
+Approach: We evaluated the input program using the Postorder traversal of the tree contructed where the postorder tranversal is implemented
+		  using a stack. 
+
+NOTE : We need to end the while loop with a ';'
+	   Please Do not use the Alphabets used for Grammar identification as Variables in the input file.
+	   The Alphabets used for Grammar identification include as follows:
+	   
+	   	1. P - Program
+	   	2. S - Statement
+	   	3. R - Read
+	   	4. Pr- Print
+	   	5. A - Assignment
+	   	6. W - While
+	   	7. E - Expression
+	   	8. E1- Expression1
+	   	9. T - Term
+	   10. F - Factor
+	   11. C - Constant ({0-9}+.{0-9}k)
+	   12. V - Variable	({a-z}+) 
 
 Grammar:
 
@@ -28,6 +52,6 @@ T -> F*T
     |F
 F -> ( E ) | C | V
 V -> {a-z}+
-C -> {0-9}+.{0-9}k 
+C -> {0-9}+.{0-9}k
 
  

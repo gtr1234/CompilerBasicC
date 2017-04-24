@@ -7,7 +7,7 @@ Group Members: 1)A.V.S Karthik(2014CSB1005)
 To compile: gcc pa3.c
 To run: ./a.out [input filename]
 
-Output: The Pre-order traversal of the tree constructed will be written to output.txt file 
+Output: The Pre-order traversal of the tree constructed will be written to "output.txt" file 
 		The Evaluated values/results from the input program file will be shown in command prompt.
 
 
@@ -16,7 +16,9 @@ The Grammar for while is updated now, it can have multiple statements.
 Approach: We evaluated the input program using the Postorder traversal of the tree contructed where the postorder tranversal is implemented
 		  using a stack. 
 
-NOTE : We need to end the while loop with a ';'
+NOTE : read can be used only with a variable whereas print can be used along with variables,expressions and constants.
+	   We need to end the while loop with a ';'
+	   We assumed the the input program is syntactically correct.
 	   Please Do not use the Alphabets used for Grammar identification as Variables in the input file.
 	   The Alphabets used for Grammar identification include as follows:
 	   

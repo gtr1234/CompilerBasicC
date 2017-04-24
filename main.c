@@ -21,7 +21,7 @@ int num_statements=0;
 
 
 
-//char variableTable[5000][2];
+//char variableTable[5000][2]; 
 
 
 Node programTree(char* string);

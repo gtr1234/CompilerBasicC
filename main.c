@@ -5,6 +5,7 @@
 #define MAX_SIZE 100
 typedef struct _Node{
     char * value;
+    char * eval;
     int num_children;
     struct _Node* children;
     int null_value;
@@ -12,12 +13,15 @@ typedef struct _Node{
     int right;
 } Node;
 
-
+char *table[100];
+int po = 0;
+float values[100];
+int gIndex=0;
 int num_statements=0;
 
 
 
-//char variableTable[5000][2];  
+//char variableTable[5000][2];
 
 
 Node programTree(char* string);
@@ -35,6 +39,7 @@ Node variableTree(char * string);
 int isValidCharacter(char c);
 void preorder(Node *root,FILE * f);
 void postorder(Node* root);
+float strToFloat(char *c);
 //void postorder(Node *root,FILE * f);
 
 
@@ -46,7 +51,7 @@ int isValidCharacter(char c){   // if anything is missed, add... . No requiremen
 
 Node programTree(char* string){
     Node root;
-
+    root.eval = NULL;
 
     if(string==NULL || strlen(string)==0){
         root.null_value=1;
@@ -145,7 +150,7 @@ Node programTree(char* string){
 
 Node statementTree(char * string){
     Node root;
-
+    root.eval = NULL;
     root.value="S";
     root.children = (Node*)malloc(sizeof(Node)*1);
     root.num_children=1;
@@ -188,7 +193,7 @@ Node statementTree(char * string){
 
 Node readTree(char * string) {
     Node root;
-
+    root.eval = NULL;
     root.null_value = 0;
     root.value = "R";
     root.children = (Node *) malloc(sizeof(Node) * 2);
@@ -208,7 +213,7 @@ Node readTree(char * string) {
     for(i=0;i<strlen(string);i++){
         if(state==0 && string[i]=='d'){
             state=1;
-            i++;  // this is for ignoring the next space...
+            //i++;  // this is for ignoring the next space...
         }
         else if(state==1){
             variable[variable_len++] = string[i];
@@ -226,7 +231,7 @@ Node readTree(char * string) {
 
 Node printTree(char * string) {
     Node root;
-
+    root.eval = NULL;
     root.null_value = 0;
     root.value = "Pr";
     root.children = (Node *) malloc(sizeof(Node) * 2);
@@ -246,14 +251,16 @@ Node printTree(char * string) {
     for(i=0;i<strlen(string);i++){
         if(state==0 && string[i]=='t'){
             state=1;
-            i++;  // this is for ignoring the next space...
+            //i++;  // this is for ignoring the next space...
         }
         else if(state==1){
             expression[expression_len++] = string[i];
         }
     }
     expression[expression_len]=0;
-
+    //printf("estring - %s",string);
+   //	printf("print expression = %s\n",expression);
+    
     root.children[0].value = "print";
     root.children[1] = expressionTree(expression);
     
@@ -266,7 +273,7 @@ Node printTree(char * string) {
 
 Node whileTree(char * string){
     Node root;
-
+    root.eval = NULL;
     root.null_value=0;
     root.value="W";
     root.children = (Node*)malloc(sizeof(Node)*7);
@@ -360,7 +367,7 @@ Node whileTree(char * string){
 
 Node assignmentTree(char * string){
     Node root;
-
+    root.eval = NULL;
     root.value="A";
     root.children = (Node*)malloc(sizeof(Node)*3);
     root.num_children=3;
@@ -417,7 +424,7 @@ Node assignmentTree(char * string){
 
 Node expressionTree(char * string){   // no space should be there in string
     Node root;
-
+    root.eval = NULL;
     root.value="E";
     root.children = (Node*)malloc(sizeof(Node)*3);
     root.num_children=3;
@@ -527,7 +534,7 @@ Node expressionTree(char * string){   // no space should be there in string
 
 Node expression1Tree(char * string){
     Node root;
-
+    root.eval = NULL;
     root.value="E1";
     root.children = (Node*)malloc(sizeof(Node)*3);
     root.num_children=3;
@@ -623,7 +630,7 @@ Node expression1Tree(char * string){
 
 Node termTree(char * string){
     Node root;
-
+    root.eval = NULL;
     root.value="T";
     root.children = (Node*)malloc(sizeof(Node)*3);
     root.num_children=3;
@@ -718,7 +725,7 @@ Node termTree(char * string){
 
 Node factorTree(char * string){
     Node root;
-
+    root.eval = NULL;
     root.value = "F";
     root.children = (Node *) malloc(sizeof(Node) * 3);
     root.num_children=3;
@@ -817,7 +824,7 @@ Node factorTree(char * string){
 
 Node constantTree(char * string){
     Node root;
-
+    root.eval = NULL;
     root.value = "C";
     root.children = (Node *) malloc(sizeof(Node) * 1);
     root.children[0].num_children=0;
@@ -837,6 +844,7 @@ Node variableTree(char * string){
     Node root;
 
     root.value = "V";
+    root.eval = NULL;
     root.children = (Node *) malloc(sizeof(Node) * 1);
     root.children[0].num_children=0;
     root.num_children=1;
@@ -874,6 +882,47 @@ void preorder(Node * root,FILE * f){
     }
     fprintf(f,"#");
 }
+
+float strToFloat(char *c){
+    char *it = c;
+    int size1 = 0,size2 = 0;
+    while(isalnum(*it)){
+        it++;
+        size1++;
+    }
+    
+    it++; 
+    
+    while(isalnum(*it)){
+        it++;
+        size2++;
+    }
+
+    int n = size1 + size2 + 1;
+    int i;
+    float ans = 0.0;
+    int mult = 1;
+    if(size2 == 0) n = size1;
+    for(i = n-1;i>=0;i--){
+        if(c[i] == '.')
+            continue;
+        else{
+            ans += mult*(c[i] - '0');
+            mult *= 10;
+        }
+    }
+
+    float div = 1.0f;
+    for(i = 0; i < size2; i++)
+        div *= 10;
+
+    ans /= div;
+
+
+    return ans;
+
+}
+
 
 
 
@@ -925,10 +974,22 @@ int main() {
 
     FILE *fout = fopen("output.txt", "w");
 
+    for(po=0;po<100;po++){
+       table[po] = malloc(100);  
+    }
+    
+    
     preorder(&root,fout);
     fprintf(fout,"\n");
     postorder(&root);
     fclose(fout);
+    
+    
+printf("\n%s\n",table[0]);
+printf("\n%f\n",values[0]);
+
+printf("\n%s\n",table[1]);
+printf("\n%f\n",values[1]);
 
     return 0;
 }
@@ -984,28 +1045,22 @@ struct _Node* peek(struct Stack* stack)
 // An iterative function to do postorder traversal of a given binary tree
 void postorder(Node* root)
 {
-    // Check for empty tree
+    
     if (root == NULL)
         return;
-    printf("%s\n", root->value);
-    printf("%d\n", root->left);
-        
+    
     struct Stack* stack = createStack(MAX_SIZE);
 
     do
     {
-       
         while (root)
         {
            
             if (root->right!=-1 && &root->children[root->right]!=NULL)
                 push(stack, &root->children[root->right]);
             push(stack, root);
- 
-            
             root = &root->children[root->left];
-            
-             	
+                	
         }
 
        
@@ -1021,9 +1076,192 @@ void postorder(Node* root)
         }
         else  
         {
+        	int i=0;
 		printf("Node - > %s \n", root->value);
+		
+		if(root->num_children == 0){
+
+		   root->eval = root->value;
+
+		   printf("assigned value = %s\n",root->value);
+		   printf("when no children %s \n",root->eval);
+		}
+		else{
+		
+		    int cnt=0,sing=0,doub=0;
+		    for(i=0;i<root->num_children;i++){
+		    
+			if(&root->children[i] !=NULL && (root->children[i].eval !=NULL)){
+			
+			    if(cnt == 0){
+			      sing = i;
+			    }
+			    else{
+			      doub = i;
+			      
+			    }
+			    cnt++;
+			    printf("cnt value = %d\n", cnt);
+
+			printf("node---- value = %s \n", root->children[i].value);
+			}
+			
+		    }	
+		    	 printf("count value =  %d \n",cnt);
+		   if(cnt == 1){
+		     
+		     
+		     
+		     root->eval = root->children[sing].eval;
+		     printf("root->eval haha =%s", root->eval);
+		   	
+		   }
+		   else if(cnt == 2){
+		   
+				     float temp1=0.0f,temp2=0.0f,temp3=0.0f;
+				     char tem[100];
+				     int chk=0;
+				     
+
+				     if (root->children[sing].eval[0] > 48 && root->children[sing].eval[0] <57 ){
+
+				     	
+				     	temp1=strToFloat(root->children[sing].eval);
+				     	
+				     	
+
+				     }
+				     else{
+				    
+				                        
+					for(i=0;i<100;i++){
+						
+						if(table[i]!=NULL){
+						int tyr = 0;
+						tyr = strcmp(root->children[sing].eval, table[i]);
+
+				                     if(tyr == 0){
+				                        
+							temp1 = values[i];
+							printf("final= %6f\n",temp1);
+							chk=1;
+							break;
+							}
+						}			        
+				
+					}   
+				     }
+
+
+				     if (root->children[doub].eval[0] >= 48 && root->children[doub].eval[0] <=57 ){
+				     	
+
+				     	temp2=strToFloat(root->children[doub].eval);
+				     	
+				     }
+				     else{
+				     
+				     	
+					for(i=0;i<100;i++){
+						int tyr = 0;
+						tyr = strcmp(root->children[doub].eval, table[i]);
+
+					   if(table[i]!=NULL){
+						if(tyr == 0){
+				
+							temp2 = values[i];
+							break;
+						}			        
+				           }
+					}   
+				     }
+		     
+		     
+		  if(root->children[sing+1].value == "+"){
+
+		     temp3 = temp1+temp2;
+		     printf("addition= %6f\n",temp3);
+		     	  char lol[100];
+			  snprintf(lol, 100, "%f", temp3);
+			  root->eval = (char *) malloc(sizeof(char)*100);
+			  strcpy(root->eval,lol);
+		  }
+		  else if(root->children[sing+1].value == "-"){
+		     temp3 = temp1-temp2;
+		          char lol[100];
+			  snprintf(lol, 100, "%f", temp3);
+			  root->eval = (char *) malloc(sizeof(char)*100);
+			  strcpy(root->eval,lol);
+
+		  }
+		  else if(root->children[sing+1].value == "*"){
+		     temp3 = temp1*temp2;
+		          char lol[100];
+			  snprintf(lol, 100, "%f", temp3);
+			  root->eval = (char *) malloc(sizeof(char)*100);
+			  strcpy(root->eval,lol);
+
+		  } 
+		  else if(root->children[sing+1].value == "/"){
+		     temp3 = temp1/temp2;
+		     	  char lol[100];
+			  snprintf(lol, 100, "%f", temp3);
+			  root->eval = (char *) malloc(sizeof(char)*100);
+			  strcpy(root->eval,lol);
+			  
+		  }
+		  else if(root->children[sing+1].value == "="){
+		    printf("final* =%s\n", root->children[sing].eval);
+		    printf("final*= %f\n",temp2);
+		    
+		    int bolo = 0;
+		    
+		    for(i=0; i <gIndex; i++){
+		    
+		    if(!strcmp(table[i],root->children[sing].eval)){
+		    	
+		    	values[i] = temp2;
+		    	bolo =1;
+		    	break;
+		    }		     
+		    
+		    }
+		    
+		    if(bolo==0){
+			
+			table[gIndex] = root->children[sing].eval;
+           		values[gIndex] = temp2;
+		        gIndex++; 
+		    		    
+		    }
+		    
+		        
+		  }
+		  else if(root->children[sing].value == "print"){
+		    
+		    printf("**printing**= %f\n",temp2);
+		  }
+		  else if(root->children[sing].value == "read"){
+		  
+		   float val = 0.0f;
+		   
+		   scanf("%f",&val);
+		   table[gIndex] = root->children[doub].eval;
+		   values[gIndex] = val;
+		   gIndex++; 
+		  
+		  
+		  }  
+		  
+		  
+		   }//cnt == 2	
+		}
+		
+		
+		printf("\n");
             root = NULL;
         }
     } while (!isEmpty(stack));
 }
- 
+
+

@@ -11,6 +11,7 @@ typedef struct _Node{
     int null_value;
     int left;
     int right;
+    int isWhile;
 } Node;
 
 char *table[100];
@@ -21,7 +22,7 @@ int num_statements=0;
 
 
 
-//char variableTable[5000][2]; 
+//char variableTable[5000][2];
 
 
 Node programTree(char* string);
@@ -52,7 +53,7 @@ int isValidCharacter(char c){   // if anything is missed, add... . No requiremen
 Node programTree(char* string){
     Node root;
     root.eval = NULL;
-
+	root.isWhile = -1;
     if(string==NULL || strlen(string)==0){
         root.null_value=1;
         return root;
@@ -71,11 +72,29 @@ Node programTree(char* string){
     root.children[0].num_children=0;
     root.children[1].num_children=0;
 
+	root.children[0].isWhile=-1;
+    root.children[1].isWhile=-1;
 
     int while_state=0;
 
-    if(strstr(string,"while")){
+	if(strstr(string,"while")){
         while_state=1;
+    }
+
+	char * result = strstr(string,"while");
+	int position = result - string;
+	
+	int itr1;
+	int sem_pos=-1;
+	for(itr1=0;itr1<strlen(string);itr1++){
+		if(string[itr1]==';'){
+			sem_pos = itr1;
+			break;
+		}
+	}
+	 
+    if(sem_pos<position){
+    	while_state=0;
     }
 
     char * token1;
@@ -152,11 +171,15 @@ Node statementTree(char * string){
     Node root;
     root.eval = NULL;
     root.value="S";
+    root.isWhile = -1;
     root.children = (Node*)malloc(sizeof(Node)*1);
     root.num_children=1;
     root.children[0].num_children=0;
     root.null_value=0;
 
+	root.children[0].isWhile=-1;
+    
+	//printf("estring - %s\n",string);
 
     int len = strlen(string);
     int while_state=0;  // 1 - while, 2- read, 3- print , 4- assignment
@@ -195,6 +218,7 @@ Node readTree(char * string) {
     Node root;
     root.eval = NULL;
     root.null_value = 0;
+    root.isWhile = -1;
     root.value = "R";
     root.children = (Node *) malloc(sizeof(Node) * 2);
     int i;
@@ -206,12 +230,15 @@ Node readTree(char * string) {
 
     root.num_children=2;
 
+	root.children[0].isWhile=-1;
+    root.children[1].isWhile=-1;
+
     char  variable[length_max];
     int variable_len=0;
 
     int state=0;
     for(i=0;i<strlen(string);i++){
-        if(state==0 && string[i]=='d'){
+        if(state==0 && string[i]=='d'&& i==3 && string[i-1]=='a'&&string[i-2]=='e'&&string[i-3]=='r'){ // i==3
             state=1;
             //i++;  // this is for ignoring the next space...
         }
@@ -233,6 +260,7 @@ Node printTree(char * string) {
     Node root;
     root.eval = NULL;
     root.null_value = 0;
+    root.isWhile = -1;
     root.value = "Pr";
     root.children = (Node *) malloc(sizeof(Node) * 2);
     int i;
@@ -243,13 +271,16 @@ Node printTree(char * string) {
     int length_max = strlen(string);
 
     root.num_children=2;
+	
+	root.children[0].isWhile=-1;
+    root.children[1].isWhile=-1;
 
     char  expression[length_max];
     int expression_len=0;
 
     int state=0;
     for(i=0;i<strlen(string);i++){
-        if(state==0 && string[i]=='t'){
+        if(state==0 && string[i]=='t'&& i==4 && string[i-1]=='n' && string[i-2]=='i'&&string[i-3]=='r'&&string[i-4]=='p'){
             state=1;
             //i++;  // this is for ignoring the next space...
         }
@@ -258,7 +289,6 @@ Node printTree(char * string) {
         }
     }
     expression[expression_len]=0;
-    //printf("estring - %s",string);
    //	printf("print expression = %s\n",expression);
     
     root.children[0].value = "print";
@@ -274,6 +304,7 @@ Node printTree(char * string) {
 Node whileTree(char * string){
     Node root;
     root.eval = NULL;
+    root.isWhile = -1;
     root.null_value=0;
     root.value="W";
     root.children = (Node*)malloc(sizeof(Node)*7);
@@ -348,6 +379,7 @@ Node whileTree(char * string){
     statement[statement_len]=0;
 
     root.children[0].value = "while";
+    
     root.children[1].value = "(";
 
     root.children[2] = expressionTree(expression);
@@ -355,12 +387,26 @@ Node whileTree(char * string){
     root.children[3].value = ")";
     root.children[4].value = "{";
 
-    root.children[5] = statementTree(statement);
+    root.children[5] = programTree(statement);
 
     root.children[6].value = "}";
+//**************************************************
 
-    root.left = 1;
-    root.right = 4;
+    root.children[0].isWhile = 1;
+    
+    root.children[1].isWhile = -1;
+
+    root.children[2].isWhile = 1;
+
+    root.children[3].isWhile = -1;
+    root.children[4].isWhile = -1;
+
+    root.children[5].isWhile = 1;
+
+    root.children[6].isWhile = -1;
+
+    root.left = 2;
+    root.right = 5;
 
     return root;
 }
@@ -368,6 +414,7 @@ Node whileTree(char * string){
 Node assignmentTree(char * string){
     Node root;
     root.eval = NULL;
+    root.isWhile = -1;
     root.value="A";
     root.children = (Node*)malloc(sizeof(Node)*3);
     root.num_children=3;
@@ -376,6 +423,9 @@ Node assignmentTree(char * string){
     int i;
     for(i=0;i<3;i++){
         root.children[i].num_children=0;
+        root.children[i].isWhile=-1;
+    
+
     }
 
     int length_max = strlen(string);
@@ -425,6 +475,7 @@ Node assignmentTree(char * string){
 Node expressionTree(char * string){   // no space should be there in string
     Node root;
     root.eval = NULL;
+    root.isWhile = -1;
     root.value="E";
     root.children = (Node*)malloc(sizeof(Node)*3);
     root.num_children=3;
@@ -433,6 +484,9 @@ Node expressionTree(char * string){   // no space should be there in string
     int i;
     for(i=0;i<3;i++){
         root.children[i].num_children=0;
+        root.children[i].isWhile=-1;
+
+
     }
 
 
@@ -535,6 +589,7 @@ Node expressionTree(char * string){   // no space should be there in string
 Node expression1Tree(char * string){
     Node root;
     root.eval = NULL;
+    root.isWhile = -1;
     root.value="E1";
     root.children = (Node*)malloc(sizeof(Node)*3);
     root.num_children=3;
@@ -543,6 +598,9 @@ Node expression1Tree(char * string){
     int i;
     for(i=0;i<3;i++){
         root.children[i].num_children=0;
+        root.children[i].isWhile=-1;
+
+
     }
 
     int state=0;    //1 - +,2 - -
@@ -631,6 +689,7 @@ Node expression1Tree(char * string){
 Node termTree(char * string){
     Node root;
     root.eval = NULL;
+    root.isWhile = -1;
     root.value="T";
     root.children = (Node*)malloc(sizeof(Node)*3);
     root.num_children=3;
@@ -639,6 +698,9 @@ Node termTree(char * string){
     int i;
     for(i=0;i<3;i++){
         root.children[i].num_children=0;
+        root.children[i].isWhile=-1;
+
+
     }
 
 
@@ -726,14 +788,22 @@ Node termTree(char * string){
 Node factorTree(char * string){
     Node root;
     root.eval = NULL;
+    root.isWhile = -1;
     root.value = "F";
     root.children = (Node *) malloc(sizeof(Node) * 3);
     root.num_children=3;
     root.null_value=0;
 
+
+    
+	
+
     int i;
     for(i=0;i<3;i++){
         root.children[i].num_children=0;
+        root.children[i].isWhile=-1;
+
+
     }
 
     int state=0;
@@ -741,6 +811,20 @@ Node factorTree(char * string){
     int brackcount=0;
 
     int length_max = strlen(string);
+    
+    char * temp_str = malloc(sizeof(char)*length_max);
+    int temp_str_len=0;
+    
+    int itr;
+    for(itr=0;itr<strlen(string);itr++){
+    	if(string[itr]!=';'){
+	    	temp_str[temp_str_len++] = string[itr];
+    	}
+    }
+    
+	temp_str[temp_str_len]=0;
+	string = malloc(sizeof(char)*length_max);
+	strcpy(string,temp_str);
 
     char * str1;
     int str1_len=0;
@@ -793,7 +877,7 @@ Node factorTree(char * string){
         if(err_state1==0) state1=2;
     }
 
-
+	
     if(state1==1){
         root.children[0].value="(";
         root.children[1]=expressionTree(str1);
@@ -810,6 +894,7 @@ Node factorTree(char * string){
         root.right = -1;
     }
     else if(state1==3){
+    
         root.children[0] = variableTree(string);
         root.num_children=1;
         
@@ -825,6 +910,7 @@ Node factorTree(char * string){
 Node constantTree(char * string){
     Node root;
     root.eval = NULL;
+    root.isWhile = -1;
     root.value = "C";
     root.children = (Node *) malloc(sizeof(Node) * 1);
     root.children[0].num_children=0;
@@ -835,6 +921,7 @@ Node constantTree(char * string){
 
     strcpy(root.children[0].value,string);
 
+	root.children[0].isWhile=-1;
     root.left = 0;
     root.right = -1;
     return root;
@@ -845,6 +932,7 @@ Node variableTree(char * string){
 
     root.value = "V";
     root.eval = NULL;
+    root.isWhile = -1;
     root.children = (Node *) malloc(sizeof(Node) * 1);
     root.children[0].num_children=0;
     root.num_children=1;
@@ -853,7 +941,9 @@ Node variableTree(char * string){
     root.children[0].value = (char *) malloc(sizeof(char)*strlen(string));
 
     strcpy(root.children[0].value,string);
-
+    
+    root.children[0].isWhile=-1;	
+    
     root.left = 0;
     root.right = -1;
     return root;
@@ -865,14 +955,14 @@ void preorder(Node * root,FILE * f){
     }
 
     if(root->value!=NULL) {
-        fprintf(f,"%s", root->value);
+        fprintf(f,"%s ", root->value);
     }
 
     int i;
     int state=0;
     for(i=0;i<root->num_children;i++){
         if(&root->children[i] !=NULL){
-            fprintf(f,"@");
+            //fprintf(f,"@");
             state=1;
         }
     }
@@ -880,7 +970,7 @@ void preorder(Node * root,FILE * f){
     for(i=0;i<root->num_children;i++){
         preorder(&root->children[i],f);
     }
-    fprintf(f,"#");
+   // fprintf(f,"#");
 }
 
 float strToFloat(char *c){
@@ -984,13 +1074,13 @@ int main() {
     postorder(&root);
     fclose(fout);
     
-    
+/*    
 printf("\n%s\n",table[0]);
 printf("\n%f\n",values[0]);
 
 printf("\n%s\n",table[1]);
 printf("\n%f\n",values[1]);
-
+*/
     return 0;
 }
 
@@ -1077,14 +1167,20 @@ void postorder(Node* root)
         else  
         {
         	int i=0;
-		printf("Node - > %s \n", root->value);
+		
+		
+
+
+		
+		
+		
 		
 		if(root->num_children == 0){
 
 		   root->eval = root->value;
 
-		   printf("assigned value = %s\n",root->value);
-		   printf("when no children %s \n",root->eval);
+
+
 		}
 		else{
 		
@@ -1101,19 +1197,19 @@ void postorder(Node* root)
 			      
 			    }
 			    cnt++;
-			    printf("cnt value = %d\n", cnt);
 
-			printf("node---- value = %s \n", root->children[i].value);
+
+
 			}
 			
 		    }	
-		    	 printf("count value =  %d \n",cnt);
+
 		   if(cnt == 1){
 		     
 		     
 		     
 		     root->eval = root->children[sing].eval;
-		     printf("root->eval haha =%s", root->eval);
+
 		   	
 		   }
 		   else if(cnt == 2){
@@ -1143,7 +1239,7 @@ void postorder(Node* root)
 				                     if(tyr == 0){
 				                        
 							temp1 = values[i];
-							printf("final= %6f\n",temp1);
+
 							chk=1;
 							break;
 							}
@@ -1180,7 +1276,7 @@ void postorder(Node* root)
 		  if(root->children[sing+1].value == "+"){
 
 		     temp3 = temp1+temp2;
-		     printf("addition= %6f\n",temp3);
+		    // printf("addition= %6f\n",temp3);
 		     	  char lol[100];
 			  snprintf(lol, 100, "%f", temp3);
 			  root->eval = (char *) malloc(sizeof(char)*100);
@@ -1210,9 +1306,35 @@ void postorder(Node* root)
 			  strcpy(root->eval,lol);
 			  
 		  }
+		  else if(root->children[sing+1].value == "<"){
+		     if(temp1 < temp2){
+		        temp3 = 1;
+		     }
+		     else{
+		        temp3 = 0;
+		     }
+		     
+		          char lol[100];
+			  snprintf(lol, 100, "%f", temp3);
+			  root->eval = (char *) malloc(sizeof(char)*100);
+			  strcpy(root->eval,lol);
+		  }
+		  else if(root->children[sing+1].value == "=="){
+		     if(temp1 == temp2){
+		        temp3 = 1;
+		     }
+		     else{
+		        temp3 = 0;
+		     }
+		     
+		          char lol[100];
+			  snprintf(lol, 100, "%f", temp3);
+			  root->eval = (char *) malloc(sizeof(char)*100);
+			  strcpy(root->eval,lol);
+		  }
 		  else if(root->children[sing+1].value == "="){
-		    printf("final* =%s\n", root->children[sing].eval);
-		    printf("final*= %f\n",temp2);
+
+
 		    
 		    int bolo = 0;
 		    
@@ -1223,7 +1345,8 @@ void postorder(Node* root)
 		    	values[i] = temp2;
 		    	bolo =1;
 		    	break;
-		    }		     
+		    }
+		     
 		    
 		    }
 		    
@@ -1235,11 +1358,12 @@ void postorder(Node* root)
 		    		    
 		    }
 		    
+
 		        
 		  }
 		  else if(root->children[sing].value == "print"){
 		    
-		    printf("**printing**= %f\n",temp2);
+		    printf("->%f\n",temp2);
 		  }
 		  else if(root->children[sing].value == "read"){
 		  
@@ -1248,19 +1372,40 @@ void postorder(Node* root)
 		   scanf("%f",&val);
 		   table[gIndex] = root->children[doub].eval;
 		   values[gIndex] = val;
-		   gIndex++; 
+		   gIndex++;
+		   
 		  
 		  
-		  }  
+		  }
+		  
+		  
 		  
 		  
 		   }//cnt == 2	
+		}//there is a children
+		
+		if(root->isWhile==1 && root->value=="E"){
+		 
+		  
+		  if(strToFloat(root->eval) == 0){
+		    
+		     pop(stack); 
+		     pop(stack);
+		  }
 		}
 		
+		int dog=0;
+		if(root->value == "W"){
+		  
+
+		      dog = 1;
+		}
 		
-		printf("\n");
+
+		if(dog == 0){
             root = NULL;
         }
+        }//else
     } while (!isEmpty(stack));
 }
 
